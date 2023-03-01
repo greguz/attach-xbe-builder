@@ -8,7 +8,7 @@ The script will inject the full XBE manifest extracted from source xbe, and the 
 
 ## Download
 
-See GitHub Releases.
+See GitHub [Releases](https://github.com/greguz/attach-xbe-builder/releases/latest).
 
 ## Usage
 
