@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "attach-xbe-builder",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Creates a customized attach.xbe from a game's default.xbe",
   "type": "module",
   "scripts": {
