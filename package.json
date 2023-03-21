@@ -1,11 +1,14 @@
 {
   "private": true,
-  "name": "attach-xbe-builder",
+  "name": "build-attach-xbe",
   "version": "0.1.0",
   "description": "Creates a customized attach.xbe from a game's default.xbe",
   "type": "module",
   "scripts": {
-    "build": "rollup -c && pkg ./build/build-attach-xbe.cjs -t node18-linux-x64,node18-macos-x64,node18-win-x64 --out-path ./build"
+    "build": "npm run build:rollup && npm run build:pkg",
+    "build:pkg": "pkg ./build/build-attach-xbe.cjs -t node18-linux-x64,node18-macos-x64,node18-win-x64 --out-path ./build",
+    "build:rollup": "rollup -c",
+    "lint": "standard"
   },
   "keywords": [
     "xbox",
@@ -16,8 +19,8 @@
   "author": "Giacomo Gregoletto",
   "license": "MIT",
   "devDependencies": {
-    "pkg": "^5.8.0",
-    "rollup": "^3.17.3",
+    "pkg": "^5.8.1",
+    "rollup": "^3.19.1",
     "standard": "^17.0.0"
   }
 }

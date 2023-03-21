@@ -1,4 +1,4 @@
-# attach-xbe-builder
+# build-attach-xbe
 
 Build an `attach.xbe` from a game's `default.xbe` with all game's info injected.
 
@@ -12,19 +12,17 @@ See GitHub [Releases](https://github.com/greguz/attach-xbe-builder/releases/late
 
 ## Usage
 
-CLI-help like docs (there's no CLI flags at the moment):
-
 ```
-build-attach-xbe <source xbe> [target xbe]
+Usage:
+  build-attach-xbe [...OPTIONS] [SOURCE FILE]
+
+Options:
+  -h,  --help                     Print this help text and exit.
+  -o,  --output [TARGET FILE]     Output file path, defaults to attach.xbe.
+  -v,  --version                  Print version information and exit.
 ```
 
-Defaults to `attach.xbe` if `[target xbe]` is not provided.
-
-Example for Linux:
-
-```
-./build-attach-xbe gamedir/default.xbe attach.xbe
-```
+When the `SOURCE FILE` is not defined, a raw `attach.xbe` is generated (without any injection).
 
 ## Build
 

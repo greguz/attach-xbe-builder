@@ -4,5 +4,10 @@ export default {
     file: './build/build-attach-xbe.cjs',
     format: 'cjs'
   },
-  external: ['node:fs', 'node:os', 'node:path']
+  external: [
+    'node:fs',
+    'node:fs/promises',
+    'node:os',
+    'node:path'
+  ]
 }
