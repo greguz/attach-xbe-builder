@@ -9,13 +9,13 @@ pub struct XbeHeader {
   pub section_headers_address: u32,
 }
 
-pub fn read_xbe_header(file: &mut File) -> Result<XbeHeader, &'static str> {
+pub fn read_xbe_header(file: &mut File) -> Result<XbeHeader, String> {
   let mut buffer: [u8; 376] = [0x00; 376];
 
   read_at(file, 0, &mut buffer);
 
   if !String::from_utf8(buffer[0..4].to_vec()).unwrap().eq("XBEH") {
-    return Err("not a xbox executable");
+    return Err(String::from("not a xbox executable"));
   }
 
   Ok(

@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::process;
 
 mod attach;
 mod cli;
@@ -8,41 +9,61 @@ mod util;
 mod xbe;
 
 fn main() {
+  match foo() {
+    Ok(_) => {
+      process::exit(0);
+    },
+    Err(err) => {
+      print_help(Some(err));
+      process::exit(1);
+    }
+  }
+}
 
-  // TODO: handle errors, and print help
+fn print_help(error: Option<String>) -> () {
+  match error {
+    Some(value) => {
+      eprintln!("{}", value);
+      eprintln!("");
+    },
+    None => {}
+  }
+  println!("DriveImageUtils (Cerbios version) attach.xbe builder");
+  println!("");
+  println!("Usage:`");
+  println!("  build-attach-xbe [...OPTIONS] [SOURCE FILE]");
+  println!("");
+  println!("Options:");
+  println!("  -h,  --help                     Print this help text and exit.");
+  println!("  -o,  --output [TARGET FILE]     Output file path, defaults to 'attach.xbe'.");
+  println!("  -v,  --version    ");
+}
 
-  let options = cli::parse_cli_options().unwrap();
+fn print_version() -> () {
+  println!("v0.2.0");
+}
 
-  let target_file = match options.target_file {
-    Some(value) => value,
-    None => String::from("attach.xbe")
-  };
+fn foo() -> Result<(), String> {
+  let options = cli::parse_cli_options()?;
 
-  // let target_file = if options.target_file.is_none() {
-  //   String::from("attach.xbe")
-  // } else {
-  //   options.target_file.unwrap()
-  // };
+  if options.print_help {
+    print_help(None);
+  } else if options.print_version {
+    print_version();
+  } else {
+    let target_filepath = options.target_file.unwrap_or(
+      String::from("attach.xbe")
+    );
 
-  let maybe_info= options.source_file.map(
-    |value| read_xbe_info(&value).unwrap()
-  );
+    let maybe_info: Option<XbeInfo> = match options.source_file {
+      Some(value) => Some(read_xbe_info(&value)?),
+      None => None,
+    };
 
-  // let maybe_info = match options.source_file {
-  //   Some(value) => Option::Some(read_xbe_info(&value).unwrap()),
-  //   None => Option::None
-  // };
+    write_xbe_info(&target_filepath, &maybe_info)?;
+  }
 
-  // let maybe_info = if options.source_file.is_none() {
-  //   Option::None
-  // } else {
-  //   Option::Some(read_xbe_info(&options.source_file.unwrap()).unwrap())
-  // };
-
-  write_xbe_info(&target_file, &maybe_info).unwrap();
-
-  println!("all done i suppose");
-
+  Ok(())
 }
 
 struct XbeInfo {
@@ -55,12 +76,11 @@ struct XbeImageInfo {
   buffer: Vec<u8>,
 }
 
-fn read_xbe_info(file_path: &String) -> Result<XbeInfo, &'static str> {
-  // TODO: map errors
+fn read_xbe_info(filepath: &String) -> Result<XbeInfo, String> {
   let mut file = OpenOptions::new()
     .read(true)
-    .open(file_path)
-    .unwrap();
+    .open(filepath)
+    .map_err(|err| format!("error while reading {}: {}", filepath, err))?;
 
   let header = xbe::read_xbe_header(&mut file)?;
   let image = read_image_info(&mut file, &header);
@@ -77,11 +97,6 @@ fn read_image_info(file: &mut File, header: &xbe::XbeHeader) -> Option<XbeImageI
   while i < header.number_of_sections {
     let section = xbe::read_xbe_section(file, header, i);
     if section.name.eq("$$XTIMAGE") {
-      println!("name {}", section.name);
-      println!("raw_address {}", section.raw_address);
-      println!("raw_size {}", section.raw_size);
-      println!("section_name_address {}", section.section_name_address);
-
       let buffer = read_image_buffer(file, &section);
       return Option::Some(XbeImageInfo { section, buffer });
     } else {
@@ -98,14 +113,13 @@ fn read_image_buffer(file: &mut File, section: &xbe::XbeSection) -> Vec<u8> {
   buffer
 }
 
-fn write_xbe_info(file_path: &String, maybe_info: &Option<XbeInfo>) -> Result<(), &'static str> {
-  // TODO: map errors
+fn write_xbe_info(filepath: &String, maybe_info: &Option<XbeInfo>) -> Result<(), String> {
   let mut file = OpenOptions::new()
-    .create_new(true)
+    .create(true)
     .read(true)
     .write(true)
-    .open(file_path)
-    .unwrap();
+    .open(filepath)
+    .map_err(|err| format!("error while writing {}: {}", filepath, err))?;
 
   // Retrieve the binary representation of the executable
   let hex = attach::get_attach_xbe();
@@ -139,12 +153,10 @@ fn write_xbe_info(file_path: &String, maybe_info: &Option<XbeInfo>) -> Result<()
           &data.section,
           &data.buffer
         ),
-        None => println!("image section not found"),
+        None => {},
       }
     },
-    None => {
-      println!("output raw attach.xbe")
-    },
+    None => {},
   }
 
   Ok(())
@@ -154,7 +166,7 @@ fn write_image_section(
   file: &mut File,
   image_section: &xbe::XbeSection,
   image_buffer: &Vec<u8>
-) {
+) -> () {
   let mut image_address_buffer: [u8; 4] = [0x00; 4];
 
   // move to xpr0 virtual address

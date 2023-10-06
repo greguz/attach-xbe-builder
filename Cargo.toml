@@ -1,7 +1,11 @@
 [package]
 name = "build-attach-xbe"
-version = "0.3.0"
-authors = ["greguz <gregolettogiacomo@gmail.com>"]
+description = "Build a valid attach.xbe from the game's one."
+version = "0.2.0"
+authors = ["Giacomo Gregoletto <gregolettogiacomo@gmail.com>"]
 edition = "2018"
+repository = "https://github.com/greguz/attach-xbe-builder/"
+license = "MIT"
+publish = false
 
 [dependencies]
