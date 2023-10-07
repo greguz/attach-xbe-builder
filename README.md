@@ -42,9 +42,11 @@ Yup, tested (and currently using) with UnleashX and [LithiumX](https://github.co
 
 Use [extract-xiso](https://github.com/XboxDev/extract-xiso) to extract the whole game's content, or use [xbfuse](https://github.com/multimediamike/xbfuse) (Linux only) to mount the ISO and access the files directly. Redump-style ISOs are also supported by both those projects.
 
-### JavaScript?!
+### I remember some JavaScript...
 
-_Don't Panic_. Planning to rewrite in Golang (this is the real goal for this project).
+_Fear not_ my friend, your brain is working correctly.
+
+See [v0.2.0](https://github.com/greguz/attach-xbe-builder/releases/tag/v0.2.0) release on GitHub.
 
 ### Coffee-time?
 
