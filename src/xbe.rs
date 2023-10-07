@@ -2,6 +2,22 @@ use std::fs::File;
 
 use crate::util::{ read_at, to_u32_le };
 
+#[cfg(test)]
+mod tests {
+  use crate::attach::get_attach_xbe;
+  use super::parse_xbe_header_buffer;
+
+  #[test]
+  fn xbe_header_parsing_works() {
+    let header = parse_xbe_header_buffer(&get_attach_xbe()).unwrap();
+
+    assert_eq!(header.number_of_sections, 5);
+    assert_eq!(header.base_address, 0x10000);
+    assert_eq!(header.certificate_address, 0x10184);
+    assert_eq!(header.section_headers_address, 0x10370);
+  }
+}
+
 pub struct XbeHeader {
   pub base_address: u32,
   pub certificate_address: u32,
@@ -11,19 +27,21 @@ pub struct XbeHeader {
 
 pub fn read_xbe_header(file: &mut File) -> Result<XbeHeader, String> {
   let mut buffer: [u8; 376] = [0x00; 376];
-
   read_at(file, 0, &mut buffer);
+  parse_xbe_header_buffer(&buffer)
+}
 
+fn parse_xbe_header_buffer(buffer: &[u8]) -> Result<XbeHeader, String> {
   if !String::from_utf8(buffer[0..4].to_vec()).unwrap().eq("XBEH") {
     return Err(String::from("not a xbox executable"));
   }
 
   Ok(
     XbeHeader {
-      base_address: to_u32_le(&buffer, 0x0104),
-      certificate_address: to_u32_le(&buffer, 0x0118),
-      number_of_sections: to_u32_le(&buffer, 0x011c),
-      section_headers_address: to_u32_le(&buffer, 0x120),
+      base_address: to_u32_le(buffer, 0x0104),
+      certificate_address: to_u32_le(buffer, 0x0118),
+      number_of_sections: to_u32_le(buffer, 0x011c),
+      section_headers_address: to_u32_le(buffer, 0x120),
     }
   )
 }
